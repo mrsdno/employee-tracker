@@ -3,6 +3,7 @@ const { appendFile } = require('fs');
 const db = require('./db/connection')
 const apiRoutes = require('./routes/apiRoutes')
 const PORT = process.env.PORT || 3001;
+const startApplication = require('./index')
 const app = express();
 
 // express middleware
@@ -26,3 +27,5 @@ db.connect(err => {
         console.log(`Server running on port ${PORT}`);
     })
 })
+
+startApplication();
