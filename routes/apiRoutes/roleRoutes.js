@@ -3,9 +3,9 @@ const { append } = require('express/lib/response');
 const router = express.Router();
 const db = require('../../db/connection');
 
-// get all departments
-router.get('/departments', (req, res) => {
-    const sql = `SELECT * from department`;
+// get all roles 
+router.get('/roles', (req, res) => {
+    const sql = `SELECT * from role`;
 
     db.query(sql, (err, rows) => {
         if (err) {
@@ -19,10 +19,10 @@ router.get('/departments', (req, res) => {
     });
 });
 
-// create a new department
-router.post('/departments', ({ body }, res) => {
-    const sql = `INSERT INTO department (department_name) VALUES (?)`;
-    const params = [body.department_name];
+// create a new role
+router.post('/roles', ({ body }, res) => {
+    const sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
+    const params = [body.title, body.salary, body.department_id];
 
     db.query(sql, params, (err, result) => {
         if (err) {
