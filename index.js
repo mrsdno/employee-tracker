@@ -7,7 +7,7 @@ const cTable = require('console.table');
 
 // select all deparments from db, log in console, then restart app to ask user what to do next
 const viewAllDepartments = function () {
-    db.query(`SELECT * from department`, (err, rows) => {
+    db.query(`SELECT * from departments`, (err, rows) => {
         if (err) {
             console.log(err);
         }
@@ -20,11 +20,11 @@ const viewAllDepartments = function () {
 
 // select all roles from db, log in console, then restart app
 const viewAllRoles = function () {
-    db.query(`SELECT * from role`, (err, rows) => {
+    db.query(`SELECT * FROM roles LEFT JOIN departments ON roles.department_id = departments.id`, (err, rows) => {
         if (err) {
             console.log(err);
         }
-        console.table(rows);
+        console.table('', rows);
     });
 
     startApplication();
@@ -32,7 +32,7 @@ const viewAllRoles = function () {
 
 // select all employees from db, log in console, then restart app
 const viewAllEmployees = function () {
-    db.query(`SELECT * from employee`, (err, rows) => {
+    db.query(`SELECT * from employees`, (err, rows) => {
         if (err) {
             console.log(err);
         }
@@ -52,7 +52,7 @@ const addDepartment = function () {
         })
         .then(({ addedDepartment }) => {
             // insert into database
-            db.query(`INSERT INTO department (department_name) VALUES (?)`, addedDepartment, (err, result) => {
+            db.query(`INSERT INTO departments (department_name) VALUES (?)`, addedDepartment, (err, result) => {
                 if (err) {
                     console.log(err);
                 }
@@ -94,10 +94,9 @@ const addRole = function () {
                         .then(({ addedRoleDepartment }) => {
                             // set role department by id by getting the first character (id) of the option chosen
                             role.setRoleDepartment(addedRoleDepartment.charAt(0));
-                            console.log('this is before your query', role.title, role.salary, role.department_id);
 
                             // insert into database
-                            db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`, [role.title, role.salary, role.department_id], (err, result) => {
+                            db.query(`INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`, [role.title, role.salary, role.department_id], (err, result) => {
                                 if (err) {
                                     console.log(err);
                                 }
@@ -152,7 +151,7 @@ const addEmployee = function () {
                                 .then(({ addedEmployeeManager }) => {
                                     // set manager id by getting first character of the role (id)
                                     employee.setManagerId(addedEmployeeManager.charAt(0));
-                                    db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, [employee.first_name, employee.last_name, employee.role_id, employee.manager_id], (err, result) => {
+                                    db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, [employee.first_name, employee.last_name, employee.role_id, employee.manager_id], (err, result) => {
                                         if (err) {
                                             console.log(err);
                                         }
@@ -191,7 +190,7 @@ const updateEmployee = function () {
                     employee.setRoleId(employeeUpdateRole.charAt(0));
                     
                     // update database
-                    db.query(`UPDATE employee SET role_id = ? WHERE id = ?`, [employee.role_id, employee.id], (err, result) => {
+                    db.query(`UPDATE employees SET role_id = ? WHERE id = ?`, [employee.role_id, employee.id], (err, result) => {
                         if (err) {
                             console.log(err);
                         }
