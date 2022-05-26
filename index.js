@@ -1,3 +1,6 @@
+// YOU LEFT OFF WRITING THE ADD EMPLOYEE FUNCITONALITY. NOW YOU JUST HAVE TO DO THE UPDATE EMPLOYEE AND SOME CLEANUP
+
+
 const inquirer = require('inquirer');
 const Department = require('./lib/Department');
 const Employee = require('./lib/Employee');
@@ -94,12 +97,12 @@ const startApplication = () => {
                                         });
 
                                     });
-                                
+
                             })
                     })
-                    
-                } else if (primarySelection === 'Add an employee') {
-                    inquirer
+
+            } else if (primarySelection === 'Add an employee') {
+                inquirer
                     .prompt({
                         type: 'input',
                         message: "What is the employee's first name?",
@@ -127,29 +130,60 @@ const startApplication = () => {
                                     .then(({ addedEmployeeRole }) => {
                                         employee.setRoleId(addedEmployeeRole.charAt(0));
                                         inquirer
-                                        .prompt({
-                                            type: 'list',
-                                            name: 'addedEmployeeManager',
-                                            message: "Who is this employee's manager?",
-                                            choices: ['1. Account Manager', '2. Lead Engineer', '3. Legal Team Lead']
-                                        })
-                                        .then(({ addedEmployeeManager }) => {
-                                            employee.setManagerId(addedEmployeeManager.charAt(0));
-                                            db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, [employee.first_name, employee.last_name, employee.role_id, employee.manager_id], (err, result) => {
-                                                if (err) {
-                                                    console.log(err);
-                                                }
-                                                console.log(employee.first_name, employee.last_name, employee.role_id, employee.manager_id);
-                                            });
-                                        })
+                                            .prompt({
+                                                type: 'list',
+                                                name: 'addedEmployeeManager',
+                                                message: "Who is this employee's manager?",
+                                                choices: ['1. Account Manager', '2. Lead Engineer', '3. Legal Team Lead']
+                                            })
+                                            .then(({ addedEmployeeManager }) => {
+                                                employee.setManagerId(addedEmployeeManager.charAt(0));
+                                                db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, [employee.first_name, employee.last_name, employee.role_id, employee.manager_id], (err, result) => {
+                                                    if (err) {
+                                                        console.log(err);
+                                                    }
+                                                    console.log(employee.first_name, employee.last_name, employee.role_id, employee.manager_id);
+                                                });
+                                            })
                                     });
                             })
                     })
-                }
-            })
-        }
-    
-    
+            } else if (primarySelection === 'Update an employee role') {
+                inquirer
+                    .prompt({
+                        type: 'list',
+                        message: "What employee's role do you want to change?",
+                        name: 'employeeUpdateId',
+                        choices: ['1. Noemi', '2. Marlee', '3. Alonso', '4. Cindy', '5. Desiree', '6. Madden', '7. Chelsea', '8. Case', '9. Charlie']
+                    })
+                    .then(({ employeeUpdateId }) => {
+                        let employee = new Employee();
+                        employee.setId(employeeUpdateId.charAt(0));
+
+                        inquirer
+                        .prompt({
+                            type: 'list',
+                            name: 'employeeUpdateRole',
+                            message: "What is the new role you'd like to assign?",
+                            choices: ['1. Salesperson', '2. Lead Engineer', '3. Software Engineer', '4. Account Manager', '5. Accountant', '6. Legal Team Lead', '7. Lawyer']
+                        })
+                        .then(({ employeeUpdateRole }) => { 
+                            employee.setRoleId(employeeUpdateRole.charAt(0));
+                        
+
+                        db.query(`UPDATE employee SET role_id = ? WHERE id = ?`, [employee.role_id, employee.id], (err, result) => { 
+                            if (err) {
+                                console.log(err);
+                            }
+                            console.log(`You updated employee id ${employee.id}'s role to ${employee.role_id}`);
+                        });
+                    })
+                })
+            }
+        })
+}
+
+
 
 
 
