@@ -11,7 +11,7 @@ const viewAllDepartments = function () {
         if (err) {
             console.log(err);
         }
-        console.table(rows);
+        console.table('', rows);
     });
 
     startApplication();
@@ -20,7 +20,8 @@ const viewAllDepartments = function () {
 
 // select all roles from db, log in console, then restart app
 const viewAllRoles = function () {
-    db.query(`SELECT * FROM roles LEFT JOIN departments ON roles.department_id = departments.id`, (err, rows) => {
+    db.query(`SELECT * FROM roles 
+                LEFT JOIN departments ON roles.department_id = departments.id`, (err, rows) => {
         if (err) {
             console.log(err);
         }
@@ -32,11 +33,25 @@ const viewAllRoles = function () {
 
 // select all employees from db, log in console, then restart app
 const viewAllEmployees = function () {
-    db.query(`SELECT * from employees`, (err, rows) => {
+    db.query(`SELECT emp.id, 
+                emp.first_name, 
+                emp.last_name, 
+                emp.role_id, 
+                roles.title AS job_title, 
+                roles.department_id, 
+                dpt.department_name, 
+                roles.salary, 
+                emp.manager_id,
+                emp2.first_name AS manager_first_name, 
+                emp2.last_name AS manager_last_name 
+                FROM business.employees emp 
+                LEFT JOIN business.employees emp2 ON emp.manager_id = emp2.id
+                LEFT JOIN business.roles roles ON emp.role_id =  roles.id 
+                LEFT JOIN business.departments dpt ON roles.department_id = dpt.id`, (err, rows) => {
         if (err) {
             console.log(err);
         }
-        console.table(rows);
+        console.table('', rows);
     });
 
     startApplication();
@@ -89,7 +104,7 @@ const addRole = function () {
                             type: 'list',
                             name: 'addedRoleDepartment',
                             message: 'What department is this role in?',
-                            choices: ['1. Sales', '2. Engineering', '3. Finance', '4. Legal', '5. Quality Control']
+                            choices: []
                         })
                         .then(({ addedRoleDepartment }) => {
                             // set role department by id by getting the first character (id) of the option chosen
