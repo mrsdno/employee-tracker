@@ -85,7 +85,6 @@ const addRole = function () {
             name: 'addedRoleTitle'
         })
         .then(({ addedRoleTitle }) => {
-
             // set up new role from class and set title
             let role = new Role();
             role.setRoleTitle(addedRoleTitle);
@@ -99,16 +98,21 @@ const addRole = function () {
                 .then(({ addedRoleSalary }) => {
                     // set salary in role
                     role.setRoleSalary(addedRoleSalary);
+
+
                     inquirer
                         .prompt({
                             type: 'list',
                             name: 'addedRoleDepartment',
                             message: 'What department is this role in?',
-                            choices: []
+                            choices: department_names
                         })
-                        .then(({ addedRoleDepartment }) => {
+                        .then(({ addedRoleDepartment, choices }) => {
                             // set role department by id by getting the first character (id) of the option chosen
-                            role.setRoleDepartment(addedRoleDepartment.charAt(0));
+                            db.query(`SELECT id FROM departments WHERE department_name = '${addedRoleDepartment}'`, (err, result) => {
+                                const department_id = result;
+                                role.setRoleDepartment(department_id[0].id);
+                                console.log(role)
 
                             // insert into database
                             db.query(`INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`, [role.title, role.salary, role.department_id], (err, result) => {
@@ -117,9 +121,8 @@ const addRole = function () {
                                 }
                                 startApplication();
                             });
-
+                            })                             
                         });
-
                 })
         })
 }
