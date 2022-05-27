@@ -5,13 +5,33 @@ const Role = require('./lib/Role');
 const db = require('./db/connection')
 const cTable = require('console.table');
 
+// departments array to store deparments currently in database
+let department_names = [];
+
+db.query(`SELECT * FROM business.departments`, (err, rows) => {
+    for (i = 0; i < rows.length; i++) {
+        department_names.push(rows[i].department_name)
+    }
+})
+
+// roles array to store roles currently in database
+let role_names = [];
+
+db.query(`SELECT * FROM.business.roles`, (err, rows) => {
+    for (i = 0; i < rows.length; i++) {
+        role_names.push(rows[i].department_name)
+    }
+})
+
 // select all deparments from db, log in console, then restart app to ask user what to do next
 const viewAllDepartments = function () {
     db.query(`SELECT * from departments`, (err, rows) => {
         if (err) {
             console.log(err);
         }
+        
         console.table('', rows);
+
     });
 
     startApplication();
