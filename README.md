@@ -1,27 +1,57 @@
-# employee-tracker
+# Employee Tracker 
 
-## User Story
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-    AS A business owner
-    I WANT to be able to view and manage the departments, roles, and employees in my company
-    SO THAT I can organize and plan my business
+![video](ADD VIDEO LINK HERE)
 
-## Acceptance Criteria
+## Table of Contents
 
-    GIVEN a command-line application that accepts user input
-    WHEN I start the application
-    THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
-    WHEN I choose to view all departments
-    THEN I am presented with a formatted table showing department names and department ids
-    WHEN I choose to view all roles
-    THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
-    WHEN I choose to view all employees
-    THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-    WHEN I choose to add a department
-    THEN I am prompted to enter the name of the department and that department is added to the database
-    WHEN I choose to add a role
-    THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
-    WHEN I choose to add an employee
-    THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-    WHEN I choose to update an employee role
-    THEN I am prompted to select an employee to update and their new role and this information is updated in the database
+* [Description](#description)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Contributing](#contributing)
+* [License](#license)
+* [Questions](#questions)
+
+## Description
+
+*Built using:*
+- Node.js®
+- SQL
+- inquirer
+- JavaScript
+
+This console application uses inquirer to guide a user to view and update their employee database. The SQL databases holds information about the employees, their roles, the departments they work in and their salary.
+
+## Installation
+
+*To set up this file locally...*
+
+ - Clone this repo to your 
+ - Run `npm i` to install the dependencies
+ - Start a SQL session and run `source schema.sql` to create the database and tables
+ - You can run `seeds.sql` to populate the database with test data
+
+## Usage
+
+To start the application: `node index`
+
+You will see a note in the command line that will prompt a user to use the application as needed.
+
+## Contributing
+
+If you would like to contribute to this project, submit a **pull request** or reach out directly via **email** linked below.
+
+## License
+
+Copyright © 2022 Christine Diienno
+
+This project is licensed under the [MIT License](https://mit-license.org/).
+
+## Questions
+
+Do you have any questions? 
+
+You can find my github profile here: [mrsdno](https://github.com/mrsdno)
+
+Or you can email me here: [christine@dno.dev](mailto:christine@dno.dev)

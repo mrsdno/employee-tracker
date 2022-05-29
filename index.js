@@ -9,6 +9,7 @@ const cTable = require('console.table');
 let department_names = [];
 
 db.query(`SELECT * FROM business.departments`, (err, rows) => {
+    if (err) throw err;
     for (i = 0; i < rows.length; i++) {
         department_names.push(rows[i].department_name)
     }
@@ -17,9 +18,20 @@ db.query(`SELECT * FROM business.departments`, (err, rows) => {
 // roles array to store roles currently in database
 let role_names = [];
 
-db.query(`SELECT * FROM.business.roles`, (err, rows) => {
-    for (i = 0; i < rows.length; i++) {
-        role_names.push(rows[i].department_name)
+db.query(`SELECT * FROM business.roles`, (err, rows) => {
+    if (err) throw err;
+    for (y = 0; y < rows.length; y++) {
+        role_names.push(rows[y].title)
+    }
+})
+
+// employees array to store roles currently in database
+let employee_names = [];
+
+db.query(`SELECT * FROM business.employees`, (err, rows) => {
+    if (err) throw err;
+    for (x = 0; x < rows.length; x++) {
+        employee_names.push(rows[x].first_name)
     }
 })
 
@@ -132,7 +144,6 @@ const addRole = function () {
                             db.query(`SELECT id FROM departments WHERE department_name = '${addedRoleDepartment}'`, (err, result) => {
                                 const department_id = result;
                                 role.setRoleDepartment(department_id[0].id);
-                                console.log(role)
 
                             // insert into database
                             db.query(`INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`, [role.title, role.salary, role.department_id], (err, result) => {
@@ -174,130 +185,147 @@ const addEmployee = function () {
                             type: 'list',
                             name: 'addedEmployeeRole',
                             message: "What is this employee's role?",
-                            choices: ['1. Salesperson', '2. Lead Engineer', '3. Software Engineer', '4. Account Manager', '5. Accountant', '6. Legal Team Lead', '7. Lawyer']
+                            choices: role_names
                         })
                         .then(({ addedEmployeeRole }) => {
-                            // set employee role id by getting first character of the role (id)
-                            employee.setRoleId(addedEmployeeRole.charAt(0));
-                            inquirer
-                                .prompt({
-                                    type: 'list',
-                                    name: 'addedEmployeeManager',
-                                    message: "Who is this employee's manager?",
-                                    choices: ['1. Account Manager', '2. Lead Engineer', '3. Legal Team Lead']
-                                })
-                                .then(({ addedEmployeeManager }) => {
-                                    // set manager id by getting first character of the role (id)
-                                    employee.setManagerId(addedEmployeeManager.charAt(0));
-                                    db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, [employee.first_name, employee.last_name, employee.role_id, employee.manager_id], (err, result) => {
-                                        if (err) {
-                                            console.log(err);
-                                        }
-                                        startApplication();
-                                    });
-                                })
-                        });
+                            
+                            // set role department by id by getting the first character (id) of the option chosen
+                            db.query(`SELECT id FROM roles WHERE title = '${addedEmployeeRole}'`, (err, result) => {
+                                const role_id = result;
+                                employee.setRoleId(role_id[0].id);
+
+                                inquirer
+                                    .prompt({
+                                        type: 'list',
+                                        name: 'addedEmployeeManager',
+                                        message: "Who is this employee's manager?",
+                                        choices: employee_names
+                                    })
+                                    .then(({ addedEmployeeManager }) => {
+                                        // set role department by id by getting the first character (id) of the option chosen
+                                        db.query(`SELECT id FROM employees WHERE first_name = '${addedEmployeeManager}'`, (err, result) => {
+                                            const manager_id = result;
+                                            employee.setManagerId(manager_id[0].id);
+
+                                            db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, [employee.first_name, employee.last_name, employee.role_id, employee.manager_id], (err, result) => {
+                                                if (err) {
+                                                    console.log(err);
+                                                }
+                                                startApplication();
+                                            });
+                                        })
+                                    })
+                            });
+                        })
                 })
         })
 }
-
-// get info from user and store in 'employee', then update database, then restart app
-const updateEmployee = function () {
-    inquirer
-        .prompt({
-            type: 'list',
-            message: "What employee's role do you want to change?",
-            name: 'employeeUpdateId',
-            choices: ['1. Noemi', '2. Marlee', '3. Alonso', '4. Cindy', '5. Desiree', '6. Madden', '7. Chelsea', '8. Case', '9. Charlie']
-        })
-        .then(({ employeeUpdateId }) => {
+    // get info from user and store in 'employee', then update database, then restart app
+    const updateEmployee = function () {
+        inquirer
+            .prompt({
+                type: 'list',
+                message: "What employee's role do you want to change?",
+                name: 'employeeUpdateId',
+                choices: employee_names
+            })
+            .then(({ employeeUpdateId }) => {
             
-            // set up employee from class and set id
-            let employee = new Employee();
-            employee.setId(employeeUpdateId.charAt(0));
-
-            inquirer
-                .prompt({
-                    type: 'list',
-                    name: 'employeeUpdateRole',
-                    message: "What is the new role you'd like to assign?",
-                    choices: ['1. Salesperson', '2. Lead Engineer', '3. Software Engineer', '4. Account Manager', '5. Accountant', '6. Legal Team Lead', '7. Lawyer']
+                // set up employee from class and set id
+                let employee = new Employee();
+                db.query(`SELECT id FROM employees WHERE first_name = '${employeeUpdateId}'`, (err, result) => {
+                    const employee_id = result;
+                    employee.setId(employee_id[0].id);
                 })
-                .then(({ employeeUpdateRole }) => {
-                    // set role id for employee by getting first character of choice (id)
-                    employee.setRoleId(employeeUpdateRole.charAt(0));
-                    
-                    // update database
-                    db.query(`UPDATE employees SET role_id = ? WHERE id = ?`, [employee.role_id, employee.id], (err, result) => {
-                        if (err) {
-                            console.log(err);
-                        }
+                inquirer
+                    .prompt({
+                        type: 'list',
+                        name: 'employeeUpdateRole',
+                        message: "What is the new role you'd like to assign?",
+                        choices: role_names
+                    })
+
+                    .then(({ employeeUpdateRole }) => {
+                        // set role department by id by getting the first character (id) of the option chosen
+                        db.query(`SELECT id FROM roles WHERE title = '${employeeUpdateRole}'`, (err, result) => {
+                            const role_id = result;
+                            employee.setRoleId(role_id[0].id);
                         
-                        startApplication();
-                    });
-                })
-        })
-}
-
-const startApplication = () => {
-    // start application by asking what the user wants to do
-    inquirer
-        .prompt({
-            type: 'list',
-            name: 'primarySelection',
-            message: 'What would you like to do?',
-            choices: ['View all departments',
-                'View all roles',
-                'View all employees',
-                'Add a department',
-                'Add a role',
-                'Add an employee',
-                'Update an employee role',
-                'Quit']
-        })
-        .then(({ primarySelection }) => {
-
-            // if user chooses to view all departments, show them all departments by calling function
-            if (primarySelection === 'View all departments') {
-                viewAllDepartments();
+                            // update database
+                            db.query(`UPDATE employees SET role_id = ? WHERE id = ?`, [employee.role_id, employee.id], (err, result) => {
+                                if (err) {
+                                    console.log(err);
+                                }
+                                console.log(employee)
+                                startApplication();
+                            })
+                            })
+                        })
+                    })
             }
+    
 
-            // if user chooses to view all roles, show them all roles by calling function 
-            else if (primarySelection === 'View all roles') {
-                viewAllRoles();
-            }
+    const startApplication = () => {
+        // start application by asking what the user wants to do
+        inquirer
+            .prompt({
+                type: 'list',
+                name: 'primarySelection',
+                message: 'What would you like to do?',
+                choices: ['View all departments',
+                    'View all roles',
+                    'View all employees',
+                    'Add a department',
+                    'Add a role',
+                    'Add an employee',
+                    'Update an employee role',
+                    'Quit']
+            })
+            .then(({ primarySelection }) => {
 
-            // if user chooses to view all employees, show them all employees by calling function 
-            else if (primarySelection === 'View all employees') {
-                viewAllEmployees();
-            }
+                // if user chooses to view all departments, show them all departments by calling function
+                if (primarySelection === 'View all departments') {
+                    viewAllDepartments();
+                }
 
-            // if user chooses to add a department, add department by calling function 
-            else if (primarySelection === 'Add a department') {
-                addDepartment();
-            }
+                // if user chooses to view all roles, show them all roles by calling function 
+                else if (primarySelection === 'View all roles') {
+                    viewAllRoles();
+                }
 
-            // if user chooses to add a role, add role by calling function
-            else if (primarySelection === 'Add a role') {
-                addRole();
-            }
+                // if user chooses to view all employees, show them all employees by calling function 
+                else if (primarySelection === 'View all employees') {
+                    viewAllEmployees();
+                }
 
-            // if user chooses to add employee, add employee by calling function
-            else if (primarySelection === 'Add an employee') {
-                addEmployee();
-            }
+                // if user chooses to add a department, add department by calling function 
+                else if (primarySelection === 'Add a department') {
+                    addDepartment();
+                }
 
-            // if user chooses to update employee, update employee by calling function
-            else if (primarySelection === 'Update an employee role') {
-                updateEmployee();
-            }
+                // if user chooses to add a role, add role by calling function
+                else if (primarySelection === 'Add a role') {
+                    addRole();
+                }
 
-            // if user chooses quit, or anything else, quit the app
-            else {
-                console.log('Thanks for using my app!');
-                process.exit()
-            }
-        })
-}
+                // if user chooses to add employee, add employee by calling function
+                else if (primarySelection === 'Add an employee') {
+                    addEmployee();
+                }
+
+                // if user chooses to update employee, update employee by calling function
+                else if (primarySelection === 'Update an employee role') {
+                    updateEmployee();
+                }
+
+                // if user chooses quit, or anything else, quit the app
+                else {
+                    console.log('Thanks for using my app!');
+                    process.exit()
+                }
+            })
+    }
+
+
 
 startApplication();
